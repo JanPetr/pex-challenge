@@ -43,11 +43,14 @@ The program accepts these flags:
 ### `--inputFile`
 
 Specifies a file from which the program will read URLs. Each URL needs to be on a single line in the file.
+
 **This parameter is mandatory.**
 
 ### `--outputFile`
 
-Specifies a path and a name of output CSV file. _Defaults to `output.csv`_
+Specifies a path and a name of output CSV file. 
+
+_Defaults to `output.csv`_
 
 ### `--processDuplicateURLs`
 
@@ -104,3 +107,7 @@ The `analyzer.go` has a benchmark test for the image analysis.
 For the colors detection the program relies on a 3rd party library: https://github.com/EdlinOrg/prominentcolor
 
 I hope it's not an issue as it's mentioned the algorithm itself is not important.
+
+## Enjoy!
+
+If you should have any questions, hit me on hey@jan-petr.com 🚀
