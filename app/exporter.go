@@ -13,7 +13,7 @@ func ExportCSV(outputFile string, parsedImages <-chan AnalyzedImage) (<-chan str
 	errors := make(chan error, 1)
 
 	go func() {
-		f, err := os.OpenFile(outputFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0666)
+		f, err := os.OpenFile(outputFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
 			errors <- err
 		}
