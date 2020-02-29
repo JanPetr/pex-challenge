@@ -52,20 +52,6 @@ Specifies a path and a name of output CSV file.
 
 _Defaults to `output.csv`_
 
-### `--processDuplicateURLs`
-
-Boolean parameter specifying if the program should process duplicates URLs from the input file.
-Original [input file](https://gist.github.com/ehmo/e736c827ca73d84581d812b3a27bb132#file-input-txt) contains only 40
-unique URLs out of 1000 URLs present in the file. Not processing duplicate images speeds up the program significantly.
-
-However, for a large URL sets (billions of URLs) it might have a negative impact on memory consumption 
-as the program currently holds all the unique URLs in memory. So this parameter allows to turn off the behavior.
-
-Possible solution to the memory leak might be to dump chunks of URLs to disk and then read the file for each URL. 
-That would add additional IO time, but would spare the memory.
-
-_Defaults to `false`._
-
 ### `--rps`
 
 In order not to overload 3rd party services, the program implements rate limiting of outgoing requests.
@@ -98,9 +84,31 @@ Now it has dummy implementations of `logger` and `metrics` packages.
 
 Run the tests from `app/` directory: `$ go test .`.
 
-The `downloader.go` contains and integration test and requires network connection to actually download the images.
+The `downloader_test.go` contains and integration test and requires network connection to actually download the images.
+Possible improvement would be to inject mocked HTTP client to not to rely on the connection.
 
 The `analyzer.go` has a benchmark test for the image analysis.
+
+## Flow
+
+First of all the program parses the CLI arguments and starts the pipeline.
+
+Pipeline starts by reading URLs from input file. 
+Original [input file](https://gist.github.com/ehmo/e736c827ca73d84581d812b3a27bb132#file-input-txt) contains only 40
+unique URLs out of 1000 URLs present in the file. Not processing duplicate images speeds up the program significantly.
+As the program should be run on the limited resources and compromise on speed, I didn't want to hold the already processed
+URLs in memory - for a large URL sets (billions of URLs) it might overflow the memory.
+So I decided to store the URLs in file. It adds additional IO time, but spares the memory.
+
+The read URLs are pushed through the channel to next step - `downloader`.
+
+Downloader asynchronously downloads images from provided URLs, decodes them to `image.Image` and pushes them through 
+another channel to `analyzer`.
+
+Analyzer uses https://github.com/EdlinOrg/prominentcolor library to detect most common colors. 
+The detection is done asynchronously and when done, the results are pushed through channel to `exporter`.
+
+Exporter consumes the channel of analyzed images and dumps them to CSV file. 
 
 ## Colors detection
 

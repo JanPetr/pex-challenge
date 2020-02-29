@@ -12,7 +12,6 @@ import (
 var inputFile = flag.String("inputFile", "", "path to input file with image URLs")
 var outputFile = flag.String("outputFile", "output.csv", "path to output file where the analyzed images are dumped")
 var rps = flag.Int("rps", 20, "max requests per second")
-var processDuplicateURLs = flag.Bool("processDuplicateURLs", false, `When set to 'false' the program won't process images from duplicate URLs and process them only once. For larged URL sets with a lot of unique URLs you might need to set it to 'true' as it might have a big memory impact.`)
 
 func main() {
 	start := time.Now()
@@ -28,7 +27,7 @@ func main() {
 	// Run
 	fmt.Println("The program is running ...")
 
-	urls, errr := app.ReadURLs(*inputFile, *processDuplicateURLs)
+	urls, errr := app.ReadURLs(*inputFile)
 	images := app.DownloadImages(urls, *rps)
 	parsedImages := app.AnalyzeImages(images)
 	done, erre := app.ExportCSV(*outputFile, parsedImages)
